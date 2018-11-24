@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  ipsec-vpn:
+    image: hwdsl2/ipsec-vpn-server
+    restart: always
+    env_file:
+      - ./ipsec-vpn/.env
+    ports:
+      - 500:500/udp
+      - 4500:4500/udp
+    volumes:
+      - /lib/modules:/lib/modules:ro
+    privileged: true
+
+  openvpn:
+    image: kylemanna/openvpn
+    restart: always
+    ports:
+      - 1194:1194/udp
+    volumes:
+      - ./openvpn:/etc/openvpn
+    cap_add:
+      - NET_ADMIN
+
+  telegram-proxy:
+    image: telegrammessenger/proxy
+    restart: always
+    ports:
+      - 10666:443
+    volumes:
+      - ./telegram-proxy:/data
