@@ -1,9 +1,7 @@
-version: '3'
-
 services:
   ipsec-vpn:
     image: hwdsl2/ipsec-vpn-server
-    restart: always
+    restart: unless-stopped 
     env_file:
       - ./ipsec-vpn/.env
     ports:
@@ -13,20 +11,25 @@ services:
       - /lib/modules:/lib/modules:ro
     privileged: true
 
-  openvpn:
-    image: kylemanna/openvpn
-    restart: always
+  wireguard:
+    image: ghcr.io/linuxserver/wireguard
+    restart: unless-stopped
+    environment:
+      - PEERS=10
     ports:
-      - 1194:1194/udp
-    volumes:
-      - ./openvpn:/etc/openvpn
+      - 51820:51820/udp
     cap_add:
       - NET_ADMIN
-
+      - SYS_MODULE
+    volumes:
+      - /wireguard:/config
+      - /lib/modules:/lib/modules
+    
   telegram-proxy:
     image: telegrammessenger/proxy
-    restart: always
+    restart: unless-stopped
     ports:
       - 10666:443
     volumes:
       - ./telegram-proxy:/data
+
